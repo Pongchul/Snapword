@@ -1,0 +1,10 @@
+package com.snapword.backend.book.repository;
+
+import com.snapword.backend.book.domain.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+    Optional<Book> findByInviteCode(String inviteCode);
+}

@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: snapword
+  profiles:
+    active: dev  # 기본 활성 프로파일 (배포 시 prod로 변경)
+
+app:
+  cors:
+    allowed-origins: http://localhost:8080  # RN 개발 서버 기본값. prod에서는 application-prod.yml이 덮어씀
+
+jwt:
+  secret: ${JWT_SECRET:dev-only-secret-please-override-me-please-override-me}
+  expiration-ms: ${JWT_EXPIRATION_MS:604800000}  # 7일
+
+dictionary:
+  api:
+    base-url: ${DICTIONARY_API_BASE_URL:https://api.dictionaryapi.dev/api/v2/entries/en}
+
+jisho:
+  api:
+    base-url: ${JISHO_API_BASE_URL:https://jisho.org/api/v1/search/words}
+
+translation:
+  api:
+    base-url: ${TRANSLATION_API_BASE_URL:https://papago.apigw.ntruss.com/nmt/v1/translation}
+    client-id: ${TRANSLATION_API_CLIENT_ID:}
+    client-secret: ${TRANSLATION_API_CLIENT_SECRET:}
