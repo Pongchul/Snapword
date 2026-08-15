@@ -10,11 +10,16 @@ import { WordLanguage } from '../apis/words';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
+import Icon from '../components/Icon';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'BooksList'>;
 
-const BOOK_ICONS = ['📘', '📗', '📙', '📕', '📓'];
+const BOOK_TINTS = [
+    { background: colors.primaryLight, iconColor: colors.primary },
+    { background: colors.successLight, iconColor: colors.success },
+    { background: colors.dangerLight, iconColor: colors.danger },
+];
 const LANGUAGE_OPTIONS: { value: WordLanguage; label: string }[] = [
     { value: 'EN', label: '영어' },
     { value: 'JA', label: '일본어' },
@@ -54,7 +59,9 @@ export default function BooksListScreen({ navigation }: Props) {
         }
     };
 
-    const renderItem = ({ item, index }: { item: BookDto; index: number }) => (
+    const renderItem = ({ item, index }: { item: BookDto; index: number }) => {
+        const tint = BOOK_TINTS[index % BOOK_TINTS.length];
+        return (
         <TouchableOpacity
             style={styles.bookCard}
             activeOpacity={0.7}
@@ -62,8 +69,8 @@ export default function BooksListScreen({ navigation }: Props) {
                 navigation.navigate('BookDetail', { bookId: item.id, bookName: item.name, language: item.language })
             }
         >
-            <View style={styles.bookIcon}>
-                <Text style={styles.bookIconText}>{BOOK_ICONS[index % BOOK_ICONS.length]}</Text>
+            <View style={[styles.bookIcon, { backgroundColor: tint.background }]}>
+                <Icon name="book" size={22} color={tint.iconColor} />
             </View>
             <View style={styles.bookInfo}>
                 <Text style={styles.bookName} numberOfLines={1}>
@@ -75,7 +82,8 @@ export default function BooksListScreen({ navigation }: Props) {
             </View>
             <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -90,7 +98,7 @@ export default function BooksListScreen({ navigation }: Props) {
                     <View>
                         <View style={styles.heroCard}>
                             <View style={styles.heroBadge}>
-                                <Text style={styles.heroBadgeText}>📸</Text>
+                                <Icon name="camera" size={22} color={colors.primary} />
                             </View>
                             <Text style={styles.greeting}>안녕하세요,{'\n'}
                                 {member?.nickname ?? ''}님</Text>
@@ -202,7 +210,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: spacing.lg,
     },
-    heroBadgeText: { fontSize: 20 },
     greeting: { ...typography.title },
     subGreeting: { ...typography.body, color: colors.textSub, marginTop: spacing.sm },
     sectionHeader: {
@@ -280,7 +287,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginRight: spacing.md,
     },
-    bookIconText: { fontSize: 22 },
     bookInfo: { flex: 1 },
     bookName: { ...typography.subheading },
     bookMeta: { ...typography.caption, marginTop: 2 },

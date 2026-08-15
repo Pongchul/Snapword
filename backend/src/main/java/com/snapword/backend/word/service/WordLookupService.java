@@ -55,6 +55,17 @@ public class WordLookupService {
         return toDto(saved);
     }
 
+    @Transactional
+    public WordDto updateDefinition(Long wordId, String definitionKo) {
+        if (definitionKo == null || definitionKo.isBlank()) {
+            throw new IllegalArgumentException("뜻을 입력해주세요.");
+        }
+        Word word = wordRepository.findById(wordId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 단어입니다: " + wordId));
+        word.setDefinitionKo(definitionKo.trim());
+        return toDto(word);
+    }
+
     private WordDto toDto(Word word) {
         return new WordDto(
                 word.getId(),

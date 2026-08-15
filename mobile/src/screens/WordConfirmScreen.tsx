@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import Tts from 'react-native-tts';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/navigation';
 import * as wordsApi from '../apis/words';
@@ -7,6 +8,7 @@ import * as booksApi from '../apis/books';
 import { WordDto } from '../apis/words';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
+import Icon from '../components/Icon';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'WordConfirm'>;
@@ -42,6 +44,11 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
             }
         })();
     }, [texts, language, navigation]);
+
+    const speak = (text: string) => {
+        Tts.setDefaultLanguage(language === 'JA' ? 'ja-JP' : 'en-US').catch(() => {});
+        Tts.speak(text);
+    };
 
     const updateNote = (text: string, note: string) => {
         setEntries(prev => prev && prev.map(entry => (entry.text === text ? { ...entry, note } : entry)));
@@ -90,6 +97,9 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                         <View key={entry.text} style={styles.card}>
                             <View style={styles.wordHeader}>
                                 <Text style={styles.wordText}>{entry.word.text}</Text>
+                                <TouchableOpacity onPress={() => speak(entry.word!.text)} hitSlop={8}>
+                                    <Icon name="volume-2" size={20} color={colors.textSub} />
+                                </TouchableOpacity>
                                 {entry.word.partOfSpeech ? (
                                     <View style={styles.tag}>
                                         <Text style={styles.tagText}>{entry.word.partOfSpeech}</Text>

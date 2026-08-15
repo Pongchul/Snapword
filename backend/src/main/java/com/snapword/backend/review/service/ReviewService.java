@@ -4,9 +4,12 @@ import com.snapword.backend.book.domain.BookWord;
 import com.snapword.backend.book.repository.BookWordRepository;
 import com.snapword.backend.book.service.BookService;
 import com.snapword.backend.member.repository.MemberRepository;
+import com.snapword.backend.review.domain.ReviewActivity;
 import com.snapword.backend.review.domain.ReviewProgress;
 import com.snapword.backend.review.dto.QuizQuestionDto;
+import com.snapword.backend.review.dto.ReviewActivityDto;
 import com.snapword.backend.review.dto.ReviewProgressDto;
+import com.snapword.backend.review.repository.ReviewActivityRepository;
 import com.snapword.backend.review.repository.ReviewProgressRepository;
 import com.snapword.backend.word.domain.Word;
 import com.snapword.backend.word.repository.WordRepository;
@@ -14,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +38,7 @@ public class ReviewService {
     private final BookWordRepository bookWordRepository;
     private final WordRepository wordRepository;
     private final ReviewProgressRepository reviewProgressRepository;
+    private final ReviewActivityRepository reviewActivityRepository;
     private final MemberRepository memberRepository;
 
     @Transactional(readOnly = true)
@@ -69,11 +74,33 @@ public class ReviewService {
 
         applySm2(progress, correct);
         ReviewProgress saved = reviewProgressRepository.save(progress);
+        recordActivity(memberId);
 
         return new ReviewProgressDto(
                 bookWordId, saved.getRepetitions(), saved.getIntervalDays(),
                 saved.getEaseFactor(), saved.getNextReviewAt()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewActivityDto> getActivity(Long memberId, int days) {
+        LocalDate from = LocalDate.now().minusDays(days - 1L);
+        return reviewActivityRepository
+                .findByMemberIdAndActivityDateGreaterThanEqualOrderByActivityDateAsc(memberId, from).stream()
+                .map(a -> new ReviewActivityDto(a.getActivityDate(), a.getCount()))
+                .toList();
+    }
+
+    private void recordActivity(Long memberId) {
+        LocalDate today = LocalDate.now();
+        ReviewActivity activity = reviewActivityRepository.findByMemberIdAndActivityDate(memberId, today)
+                .orElseGet(() -> ReviewActivity.builder()
+                        .member(memberRepository.getReferenceById(memberId))
+                        .activityDate(today)
+                        .count(0)
+                        .build());
+        activity.setCount(activity.getCount() + 1);
+        reviewActivityRepository.save(activity);
     }
 
     private void applySm2(ReviewProgress progress, boolean correct) {

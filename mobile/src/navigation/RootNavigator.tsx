@@ -1,11 +1,13 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator, BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useAuth } from '../hooks/useAuth';
 import { AuthStackParamList, MainStackParamList, RootTabParamList } from '../types/navigation';
 import { colors } from '../theme';
+import Icon, { IconName } from '../components/Icon';
 
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
@@ -33,20 +35,20 @@ const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 const MainStack = createNativeStackNavigator<MainStackParamList>();
 const RootTab = createBottomTabNavigator<RootTabParamList>();
 
-function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
+function TabIcon({ name, focused }: { name: IconName; focused: boolean }) {
     return (
         <View style={[styles.tabIconWrap, focused && styles.tabIconWrapActive]}>
-            <Text style={styles.tabIcon}>{emoji}</Text>
+            <Icon name={name} size={18} color={focused ? colors.primary : colors.textDisabled} />
         </View>
     );
 }
 
 function BooksTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon emoji="📚" focused={focused} />;
+    return <TabIcon name="book-open" focused={focused} />;
 }
 
 function ProfileTabIcon({ focused }: { focused: boolean }) {
-    return <TabIcon emoji="👤" focused={focused} />;
+    return <TabIcon name="user" focused={focused} />;
 }
 
 function AuthNavigator() {
@@ -86,15 +88,21 @@ function BooksNavigator() {
     );
 }
 
-const tabScreenOptions: BottomTabNavigationOptions = {
-    headerShown: false,
-    tabBarActiveTintColor: colors.primary,
-    tabBarInactiveTintColor: colors.textDisabled,
-    tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
-    tabBarStyle: { borderTopColor: colors.border, height: 60, paddingTop: 6, paddingBottom: 6 },
-};
-
 function MainNavigator() {
+    const insets = useSafeAreaInsets();
+    const tabScreenOptions: BottomTabNavigationOptions = {
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textDisabled,
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '700' },
+        tabBarStyle: {
+            borderTopColor: colors.border,
+            height: 60 + insets.bottom,
+            paddingTop: 6,
+            paddingBottom: 6 + insets.bottom,
+        },
+    };
+
     return (
         <RootTab.Navigator screenOptions={tabScreenOptions}>
             <RootTab.Screen
@@ -130,7 +138,6 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-    tabIcon: { fontSize: 16 },
     tabIconWrap: {
         width: 34,
         height: 26,

@@ -15,3 +15,6 @@ export interface WordDto {
 
 export const lookupWord = (text: string, language: WordLanguage) =>
     fetcher.get<WordDto>({ path: '/api/v1/words/lookup', query: { text, language } });
+
+export const updateWordDefinition = (wordId: number, body: { definitionKo: string }) =>
+    fetcher.patch<typeof body, WordDto>({ path: `/api/v1/words/${wordId}`, body });

@@ -6,6 +6,7 @@ import { AuthStackParamList } from '../types/navigation';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
+import Icon from '../components/Icon';
 import { colors, radius, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
@@ -31,7 +32,7 @@ export default function LoginScreen({ navigation }: Props) {
     return (
         <View style={styles.container}>
             <View style={styles.logoMark}>
-                <Text style={styles.logoEmoji}>📸</Text>
+                <Icon name="camera" size={28} color={colors.primary} />
             </View>
             <Text style={styles.title}>SnapWord</Text>
             <Text style={styles.subtitle}>사진으로 만드는 나만의 단어장</Text>
@@ -80,7 +81,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         marginBottom: spacing.lg,
     },
-    logoEmoji: { fontSize: 28 },
     title: { ...typography.title, textAlign: 'center' },
     subtitle: { ...typography.body, color: colors.textSub, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xxxl },
     form: { marginBottom: spacing.xl },

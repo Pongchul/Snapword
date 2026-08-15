@@ -4,6 +4,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/navigation';
 import { useReview } from '../hooks/useReview';
 import Button from '../components/Button';
+import Icon from '../components/Icon';
 import { colors, radius, spacing, typography } from '../theme';
 
 const CHOICE_LABELS = ['A', 'B', 'C', 'D'];
@@ -28,7 +29,9 @@ export default function ReviewSessionScreen({ route, navigation }: Props) {
     if (queue.length === 0) {
         return (
             <View style={styles.center}>
-                <Text style={styles.doneEmoji}>🎉</Text>
+                <View style={styles.doneIconWrap}>
+                    <Icon name="party-popper" size={36} color={colors.primary} />
+                </View>
                 <Text style={styles.doneTitle}>오늘 복습할 단어가 없어요</Text>
                 <Button label="돌아가기" onPress={() => navigation.goBack()} style={styles.doneButton} />
             </View>
@@ -38,7 +41,13 @@ export default function ReviewSessionScreen({ route, navigation }: Props) {
     if (index >= queue.length) {
         return (
             <View style={styles.center}>
-                <Text style={styles.doneEmoji}>{correctCount === queue.length ? '🏆' : '✅'}</Text>
+                <View style={styles.doneIconWrap}>
+                    {correctCount === queue.length ? (
+                        <Icon name="trophy" size={36} color={colors.primary} />
+                    ) : (
+                        <Icon name="circle-check" size={36} color={colors.success} />
+                    )}
+                </View>
                 <Text style={styles.doneTitle}>복습 완료!</Text>
                 <Text style={styles.doneSubtitle}>
                     {queue.length}개 중 {correctCount}개 맞혔어요
@@ -98,14 +107,13 @@ export default function ReviewSessionScreen({ route, navigation }: Props) {
                                     isWrongSelected && styles.choiceBadgeWrong,
                                 ]}
                             >
-                                <Text
-                                    style={[
-                                        styles.choiceBadgeText,
-                                        (isRightAnswer || isWrongSelected) && styles.choiceBadgeTextActive,
-                                    ]}
-                                >
-                                    {isRightAnswer ? '✓' : isWrongSelected ? '✕' : CHOICE_LABELS[choiceIndex]}
-                                </Text>
+                                {isRightAnswer ? (
+                                    <Icon name="check" size={15} color={colors.white} />
+                                ) : isWrongSelected ? (
+                                    <Icon name="x" size={15} color={colors.white} />
+                                ) : (
+                                    <Text style={styles.choiceBadgeText}>{CHOICE_LABELS[choiceIndex]}</Text>
+                                )}
                             </View>
                             <Text style={styles.choiceText}>{choice}</Text>
                         </TouchableOpacity>
@@ -155,9 +163,16 @@ const styles = StyleSheet.create({
     choiceBadgeCorrect: { backgroundColor: colors.success },
     choiceBadgeWrong: { backgroundColor: colors.danger },
     choiceBadgeText: { fontSize: 13, fontWeight: '800', color: colors.textSub },
-    choiceBadgeTextActive: { color: colors.white },
     choiceText: { flex: 1, fontSize: 16, color: colors.textMain, fontWeight: '600' },
-    doneEmoji: { fontSize: 40, marginBottom: spacing.md },
+    doneIconWrap: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: colors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: spacing.md,
+    },
     doneTitle: { ...typography.heading, textAlign: 'center' },
     doneSubtitle: { ...typography.body, color: colors.textSub, marginTop: spacing.xs, textAlign: 'center' },
     doneButton: { marginTop: spacing.xxl, minWidth: 160 },

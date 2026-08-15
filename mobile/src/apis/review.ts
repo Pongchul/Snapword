@@ -24,3 +24,11 @@ export const submitReviewResult = (bookWordId: number, correct: boolean) =>
         path: `/api/v1/review/${bookWordId}/result`,
         body: { correct },
     });
+
+export interface ReviewActivityDto {
+    date: string;
+    count: number;
+}
+
+export const getReviewActivity = (days = 371) =>
+    fetcher.get<ReviewActivityDto[]>({ path: '/api/v1/review/activity', query: { days } });

@@ -2,6 +2,7 @@ package com.snapword.backend.review.controller;
 
 import com.snapword.backend.member.security.MemberPrincipal;
 import com.snapword.backend.review.dto.QuizQuestionDto;
+import com.snapword.backend.review.dto.ReviewActivityDto;
 import com.snapword.backend.review.dto.ReviewProgressDto;
 import com.snapword.backend.review.dto.ReviewResultRequest;
 import com.snapword.backend.review.service.ReviewService;
@@ -33,5 +34,14 @@ public class ReviewController {
             @RequestBody ReviewResultRequest request
     ) {
         return ResponseEntity.ok(reviewService.submitResult(bookWordId, principal.getMemberId(), request.correct()));
+    }
+
+    /** 잔디(히트맵) 표시용 — 최근 days일간의 일별 복습 활동 */
+    @GetMapping("/api/v1/review/activity")
+    public ResponseEntity<List<ReviewActivityDto>> getActivity(
+            @AuthenticationPrincipal MemberPrincipal principal,
+            @RequestParam(defaultValue = "371") int days
+    ) {
+        return ResponseEntity.ok(reviewService.getActivity(principal.getMemberId(), days));
     }
 }

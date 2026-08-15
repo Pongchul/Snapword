@@ -19,6 +19,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/navigation';
 import { WordLanguage } from '../apis/words';
 import Button from '../components/Button';
+import Icon from '../components/Icon';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Scan'>;
@@ -163,7 +164,7 @@ export default function ScanScreen({ route, navigation }: Props) {
             {!photoUri ? (
                 <View style={styles.emptyState}>
                     <View style={styles.emptyIconWrap}>
-                        <Text style={styles.emptyIcon}>📷</Text>
+                        <Icon name="camera" size={32} color={colors.primary} />
                     </View>
                     <Text style={styles.emptyTitle}>사진에서 단어를 찾아보세요</Text>
                     <Text style={styles.emptySubtitle}>
@@ -251,7 +252,7 @@ export default function ScanScreen({ route, navigation }: Props) {
                                             hitSlop={8}
                                             onPress={() => removeManualRegion(region.id)}
                                         >
-                                            <Text style={styles.manualBoxDeleteText}>×</Text>
+                                            <Icon name="x" size={13} color={colors.white} />
                                         </TouchableOpacity>
                                     </View>
                                 ))}
@@ -304,10 +305,11 @@ export default function ScanScreen({ route, navigation }: Props) {
                             {manualRegions.map(region => (
                                 <TouchableOpacity
                                     key={region.id}
-                                    style={[styles.chip, styles.chipSelected]}
+                                    style={[styles.chip, styles.chipSelected, styles.chipRowInner]}
                                     onPress={() => removeManualRegion(region.id)}
                                 >
-                                    <Text style={[styles.chipText, styles.chipTextSelected]}>{region.text} ×</Text>
+                                    <Text style={[styles.chipText, styles.chipTextSelected]}>{region.text}</Text>
+                                    <Icon name="x" size={12} color={colors.white} />
                                 </TouchableOpacity>
                             ))}
                         </View>
@@ -396,7 +398,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: spacing.lg,
     },
-    emptyIcon: { fontSize: 32 },
     emptyTitle: { ...typography.subheading, textAlign: 'center' },
     emptySubtitle: { ...typography.caption, textAlign: 'center', marginTop: spacing.xs },
     actionRow: { flexDirection: 'row', gap: spacing.sm, width: '100%' },
@@ -453,7 +454,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    manualBoxDeleteText: { color: colors.white, fontSize: 13, fontWeight: '800', lineHeight: 16 },
     drawingBox: {
         position: 'absolute',
         borderWidth: 2,
@@ -483,6 +483,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: spacing.lg,
     },
     chipSelected: { backgroundColor: colors.success },
+    chipRowInner: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
     chipText: { fontSize: 14, fontWeight: '700', color: colors.primary },
     chipTextSelected: { color: colors.white },
     confirmButton: { marginTop: spacing.lg },
