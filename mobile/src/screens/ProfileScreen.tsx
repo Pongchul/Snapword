@@ -6,6 +6,7 @@ import * as reviewApi from '../apis/review';
 import { ReviewActivityDto } from '../apis/review';
 import Button from '../components/Button';
 import ContributionGrid from '../components/ContributionGrid';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 export default function ProfileScreen() {
@@ -22,7 +23,7 @@ export default function ProfileScreen() {
     );
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container}>
             <View style={styles.profileCard}>
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>{member?.nickname?.[0]?.toUpperCase()}</Text>
@@ -36,7 +37,7 @@ export default function ProfileScreen() {
             </View>
 
             <Button label="로그아웃" variant="ghost" onPress={logout} style={styles.logoutButton} />
-        </View>
+        </ResponsiveContainer>
     );
 }
 
