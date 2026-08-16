@@ -171,7 +171,7 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                 <Button label="취소" variant="ghost" onPress={() => navigation.goBack()} style={styles.discardButton} />
                 <Button
                     label={saving ? '저장 중...' : `단어장에 저장 (${savableCount})`}
-                    onPress={handleSave}
+                    onPressIn={handleSave}
                     loading={saving}
                     disabled={savableCount === 0}
                     style={styles.saveButton}
