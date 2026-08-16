@@ -55,6 +55,29 @@ public class WordLookupService {
         return toDto(saved);
     }
 
+    /** 사전 API가 못 찾는 구동사/숙어 등을 위해, 사용자가 뜻을 직접 입력해 단어를 생성 */
+    @Transactional
+    public WordDto createManual(String rawText, WordLanguage language, String definitionKo) {
+        if (rawText == null || rawText.isBlank()) {
+            throw new IllegalArgumentException("단어를 입력해주세요.");
+        }
+        if (definitionKo == null || definitionKo.isBlank()) {
+            throw new IllegalArgumentException("뜻을 입력해주세요.");
+        }
+        String normalized = rawText.trim().toLowerCase();
+
+        return wordRepository.findByTextIgnoreCaseAndLanguage(normalized, language)
+                .map(this::toDto)
+                .orElseGet(() -> {
+                    Word word = Word.builder()
+                            .text(normalized)
+                            .language(language)
+                            .definitionKo(definitionKo.trim())
+                            .build();
+                    return toDto(wordRepository.save(word));
+                });
+    }
+
     @Transactional
     public WordDto updateDefinition(Long wordId, String definitionKo) {
         if (definitionKo == null || definitionKo.isBlank()) {
