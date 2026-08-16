@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
 import { AuthStackParamList } from '../types/navigation';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
+import ResponsiveContainer from '../components/ResponsiveContainer';
+import { useKeyboardVisible } from '../hooks/useKeyboardVisible';
 import { colors, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Signup'>;
@@ -16,6 +18,7 @@ export default function SignupScreen({ navigation }: Props) {
     const [password, setPassword] = useState('');
     const [nickname, setNickname] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const keyboardVisible = useKeyboardVisible();
 
     const handleSubmit = async () => {
         setSubmitting(true);
@@ -30,45 +33,57 @@ export default function SignupScreen({ navigation }: Props) {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>회원가입</Text>
-            <Text style={styles.subtitle}>몇 가지 정보만 입력하면 바로 시작할 수 있어요</Text>
+        <KeyboardAvoidingView
+            style={styles.keyboardView}
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+            <ScrollView
+                contentContainerStyle={[styles.scrollContent, keyboardVisible && styles.scrollContentKeyboard]}
+                keyboardShouldPersistTaps="handled"
+            >
+                <ResponsiveContainer maxWidth={440}>
+                    <Text style={styles.title}>회원가입</Text>
+                    <Text style={styles.subtitle}>몇 가지 정보만 입력하면 바로 시작할 수 있어요</Text>
 
-            <View style={styles.form}>
-                <TextField label="닉네임" placeholder="닉네임" value={nickname} onChangeText={setNickname} />
-                <TextField
-                    label="이메일"
-                    placeholder="you@example.com"
-                    autoCapitalize="none"
-                    keyboardType="email-address"
-                    value={email}
-                    onChangeText={setEmail}
-                />
-                <TextField
-                    label="비밀번호"
-                    placeholder="8자 이상, 영문/숫자/특수문자 중 2종류 이상"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={setPassword}
-                />
+                    <View style={styles.form}>
+                        <TextField label="닉네임" placeholder="닉네임" value={nickname} onChangeText={setNickname} />
+                        <TextField
+                            label="이메일"
+                            placeholder="you@example.com"
+                            autoCapitalize="none"
+                            keyboardType="email-address"
+                            value={email}
+                            onChangeText={setEmail}
+                        />
+                        <TextField
+                            label="비밀번호"
+                            placeholder="8자 이상, 영문/숫자/특수문자 중 2종류 이상"
+                            secureTextEntry
+                            value={password}
+                            onChangeText={setPassword}
+                        />
 
-                <Button
-                    label={submitting ? '가입 중...' : '가입하기'}
-                    onPress={handleSubmit}
-                    loading={submitting}
-                    style={styles.submitButton}
-                />
-            </View>
+                        <Button
+                            label={submitting ? '가입 중...' : '가입하기'}
+                            onPress={handleSubmit}
+                            loading={submitting}
+                            style={styles.submitButton}
+                        />
+                    </View>
 
-            <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
-                <Text style={styles.link}>이미 계정이 있으신가요? 로그인</Text>
-            </TouchableOpacity>
-        </View>
+                    <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={8}>
+                        <Text style={styles.link}>이미 계정이 있으신가요? 로그인</Text>
+                    </TouchableOpacity>
+                </ResponsiveContainer>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: 'center', padding: spacing.xxl, backgroundColor: colors.background },
+    keyboardView: { flex: 1, backgroundColor: colors.background },
+    scrollContent: { flexGrow: 1, justifyContent: 'center', padding: spacing.xxl },
+    scrollContentKeyboard: { justifyContent: 'flex-start', paddingTop: spacing.xxl },
     title: { ...typography.title, textAlign: 'center' },
     subtitle: { ...typography.body, color: colors.textSub, textAlign: 'center', marginTop: spacing.xs, marginBottom: spacing.xxxl },
     form: { marginBottom: spacing.xl },
