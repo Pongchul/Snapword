@@ -2,7 +2,6 @@ import React, { useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
-    Dimensions,
     Image,
     PermissionsAndroid,
     Platform,
@@ -11,6 +10,7 @@ import {
     Text,
     TouchableOpacity,
     View,
+    useWindowDimensions,
 } from 'react-native';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -20,6 +20,7 @@ import { MainStackParamList } from '../types/navigation';
 import { WordLanguage } from '../apis/words';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
+import { useResponsive } from '../hooks/useResponsive';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'Scan'>;
@@ -32,10 +33,14 @@ const WORD_PATTERN = /^[A-Za-z]{2,}$/;
 // 히라가나(3040-309F) + 가타카나(30A0-30FF) + 한자(4E00-9FFF)
 const JAPANESE_PATTERN = /^[぀-ゟ゠-ヿ一-鿿]+$/;
 const JAPANESE_STRIP_PATTERN = /[^぀-ゟ゠-ヿ一-鿿]/g;
-const PREVIEW_WIDTH = Dimensions.get('window').width - spacing.lg * 2;
+const MAX_PREVIEW_WIDTH = 480;
 
 export default function ScanScreen({ route, navigation }: Props) {
     const { bookId, language } = route.params;
+    const { width: windowWidth } = useWindowDimensions();
+    const { isTablet } = useResponsive();
+    const contentWidth = Math.min(windowWidth, isTablet ? 640 : windowWidth);
+    const PREVIEW_WIDTH = Math.min(contentWidth - spacing.lg * 2, MAX_PREVIEW_WIDTH);
     const [photoUri, setPhotoUri] = useState<string | null>(null);
     const [photoSize, setPhotoSize] = useState<{ width: number; height: number } | null>(null);
     const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -160,7 +165,10 @@ export default function ScanScreen({ route, navigation }: Props) {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView
+            style={isTablet && { maxWidth: 640, width: '100%', alignSelf: 'center' }}
+            contentContainerStyle={styles.container}
+        >
             {!photoUri ? (
                 <View style={styles.emptyState}>
                     <View style={styles.emptyIconWrap}>
