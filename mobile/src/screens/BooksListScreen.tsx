@@ -291,5 +291,5 @@ const styles = StyleSheet.create({
     bookName: { ...typography.subheading },
     bookMeta: { ...typography.caption, marginTop: 2 },
     chevron: { fontSize: 24, color: colors.textDisabled },
-    empty: { textAlign: 'center', color: colors.textPlaceholder, marginTop: 40 },
+    empty: { textAlign: 'center', color: colors.textPlaceholder, marginTop: 40, marginBottom: spacing.xxl },
 });
