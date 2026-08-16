@@ -1,6 +1,7 @@
 package com.snapword.backend.word.controller;
 
 import com.snapword.backend.word.domain.WordLanguage;
+import com.snapword.backend.word.dto.CreateManualWordRequest;
 import com.snapword.backend.word.dto.UpdateWordDefinitionRequest;
 import com.snapword.backend.word.dto.WordDto;
 import com.snapword.backend.word.exception.WordLookupFailedException;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -31,6 +33,13 @@ public class WordController {
             @RequestParam(defaultValue = "EN") WordLanguage language
     ) {
         return ResponseEntity.ok(wordLookupService.lookup(text, language));
+    }
+
+    /** 사전 API가 못 찾는 단어(구동사 등)를 사용자가 뜻을 직접 입력해서 생성 */
+    @PostMapping("/manual")
+    public ResponseEntity<WordDto> createManual(@RequestBody CreateManualWordRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(wordLookupService.createManual(request.text(), request.language(), request.definitionKo()));
     }
 
     /** 사용자가 자동/번역으로 채워진 뜻을 직접 추가하거나 고칠 수 있게 함 */
