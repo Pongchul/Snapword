@@ -23,6 +23,8 @@ export default function BookDetailScreen({ route, navigation }: Props) {
     const [savingEdit, setSavingEdit] = useState(false);
     const [showManualInput, setShowManualInput] = useState(false);
     const [manualText, setManualText] = useState('');
+    const [addingDefinitionForId, setAddingDefinitionForId] = useState<number | null>(null);
+    const [newDefinitionText, setNewDefinitionText] = useState('');
 
     const speak = (text: string) => {
         Tts.setDefaultLanguage(language === 'JA' ? 'ja-JP' : 'en-US').catch(() => {});
@@ -52,6 +54,38 @@ export default function BookDetailScreen({ route, navigation }: Props) {
         } finally {
             setSavingEdit(false);
         }
+    };
+
+    const startAddDefinition = (bookWordId: number) => {
+        setAddingDefinitionForId(bookWordId);
+        setNewDefinitionText('');
+    };
+
+    const cancelAddDefinition = () => {
+        setAddingDefinitionForId(null);
+        setNewDefinitionText('');
+    };
+
+    const submitDefinition = async (bookWordId: number) => {
+        const text = newDefinitionText.trim();
+        if (!text) return;
+        try {
+            await booksApi.addCustomDefinition(bookId, bookWordId, text);
+            setAddingDefinitionForId(null);
+            setNewDefinitionText('');
+            refresh();
+        } catch (error) {
+            Alert.alert('추가 실패', error instanceof ApiError ? error.message : '다시 시도해주세요.');
+        }
+    };
+
+    const handleRemoveDefinition = (bookWordId: number, definitionId: number) => {
+        booksApi
+            .removeCustomDefinition(bookId, bookWordId, definitionId)
+            .then(refresh)
+            .catch((error: unknown) => {
+                Alert.alert('삭제 실패', error instanceof ApiError ? error.message : '다시 시도해주세요.');
+            });
     };
 
     const handleManualAdd = () => {
@@ -145,6 +179,52 @@ export default function BookDetailScreen({ route, navigation }: Props) {
                 </View>
             )}
             {item.word.example ? <Text style={styles.example}>"{item.word.example}"</Text> : null}
+
+            <View style={styles.customDefsSection}>
+                {item.customDefinitions.map((def, index) => (
+                    <View key={def.id} style={styles.customDefRow}>
+                        <Text style={styles.customDefText}>
+                            {index + 1}. {def.text}
+                        </Text>
+                        <TouchableOpacity onPress={() => handleRemoveDefinition(item.id, def.id)} hitSlop={8}>
+                            <Icon name="x" size={13} color={colors.textPlaceholder} />
+                        </TouchableOpacity>
+                    </View>
+                ))}
+                {addingDefinitionForId === item.id ? (
+                    <View style={styles.customDefInputRow}>
+                        <TextInput
+                            style={styles.customDefInput}
+                            value={newDefinitionText}
+                            onChangeText={setNewDefinitionText}
+                            placeholder="직접 추가할 뜻을 입력하세요"
+                            placeholderTextColor={colors.textPlaceholder}
+                            autoFocus
+                        />
+                        <TouchableOpacity
+                            onPressIn={() => submitDefinition(item.id)}
+                            disabled={!newDefinitionText.trim()}
+                            hitSlop={8}
+                        >
+                            <Text
+                                style={[
+                                    styles.editSaveText,
+                                    !newDefinitionText.trim() && styles.editSaveTextDisabled,
+                                ]}
+                            >
+                                추가
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPressIn={cancelAddDefinition} hitSlop={8}>
+                            <Text style={styles.editCancelText}>취소</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (
+                    <TouchableOpacity onPress={() => startAddDefinition(item.id)} hitSlop={8}>
+                        <Text style={styles.addDefText}>＋추가</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
         </TouchableOpacity>
     );
 
@@ -295,6 +375,20 @@ const styles = StyleSheet.create({
     editSaveText: { fontSize: 13, fontWeight: '700', color: colors.primary },
     editSaveTextDisabled: { color: colors.textDisabled },
     example: { ...typography.caption, marginTop: spacing.sm, fontStyle: 'italic' },
+    customDefsSection: { marginTop: spacing.sm, gap: spacing.xs },
+    customDefRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+    customDefText: { fontSize: 14, color: colors.textSub, flex: 1 },
+    customDefInputRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+    customDefInput: {
+        flex: 1,
+        backgroundColor: colors.surface,
+        borderRadius: radius.md,
+        paddingVertical: spacing.sm,
+        paddingHorizontal: spacing.md,
+        fontSize: 14,
+        color: colors.textMain,
+    },
+    addDefText: { fontSize: 13, fontWeight: '700', color: colors.primary },
     empty: { textAlign: 'center', color: colors.textPlaceholder, marginTop: 40 },
     emptyContainer: { flexGrow: 1 },
 });
