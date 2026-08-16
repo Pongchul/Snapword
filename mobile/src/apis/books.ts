@@ -15,12 +15,18 @@ export interface BookDto {
     createdAt: string;
 }
 
+export interface BookWordDefinitionDto {
+    id: number;
+    text: string;
+}
+
 export interface BookWordDto {
     id: number;
     word: WordDto;
     note: string | null;
     addedByNickname: string;
     createdAt: string;
+    customDefinitions: BookWordDefinitionDto[];
 }
 
 export const createBook = (body: { name: string; description?: string; language?: WordLanguage }) =>
@@ -49,3 +55,12 @@ export const addBookWord = (bookId: number, body: { wordId: number; note?: strin
 
 export const removeBookWord = (bookId: number, bookWordId: number) =>
     fetcher.delete<void>({ path: `/api/v1/books/${bookId}/words/${bookWordId}` });
+
+export const addCustomDefinition = (bookId: number, bookWordId: number, text: string) =>
+    fetcher.post<{ text: string }, BookWordDefinitionDto>({
+        path: `/api/v1/books/${bookId}/words/${bookWordId}/definitions`,
+        body: { text },
+    });
+
+export const removeCustomDefinition = (bookId: number, bookWordId: number, definitionId: number) =>
+    fetcher.delete<void>({ path: `/api/v1/books/${bookId}/words/${bookWordId}/definitions/${definitionId}` });
