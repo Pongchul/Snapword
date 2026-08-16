@@ -5,6 +5,7 @@ import { MainStackParamList } from '../types/navigation';
 import * as booksApi from '../apis/books';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'BookShare'>;
@@ -34,7 +35,7 @@ export default function BookShareScreen({ route }: Props) {
     };
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container} maxWidth={480}>
             <Text style={styles.title}>단어장 공유</Text>
             <Text style={styles.description}>
                 초대코드를 발급하면 다른 사람이 이 코드로 참여해 함께 단어장을 볼 수 있어요.
@@ -56,7 +57,7 @@ export default function BookShareScreen({ route }: Props) {
             />
 
             {inviteCode ? <Button label="공유하기" onPress={handleShare} style={styles.button} /> : null}
-        </View>
+        </ResponsiveContainer>
     );
 }
 
