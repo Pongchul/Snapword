@@ -11,6 +11,7 @@ import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
 import Icon from '../components/Icon';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'BooksList'>;
@@ -86,7 +87,7 @@ export default function BooksListScreen({ navigation }: Props) {
     };
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container}>
             <FlatList
                 data={books}
                 keyExtractor={item => String(item.id)}
@@ -188,7 +189,7 @@ export default function BooksListScreen({ navigation }: Props) {
                     ) : null
                 }
             />
-        </View>
+        </ResponsiveContainer>
     );
 }
 
