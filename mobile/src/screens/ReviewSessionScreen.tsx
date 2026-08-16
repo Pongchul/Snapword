@@ -5,6 +5,7 @@ import { MainStackParamList } from '../types/navigation';
 import { useReview } from '../hooks/useReview';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, spacing, typography } from '../theme';
 
 const CHOICE_LABELS = ['A', 'B', 'C', 'D'];
@@ -73,7 +74,7 @@ export default function ReviewSessionScreen({ route, navigation }: Props) {
     };
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container}>
             <View style={styles.progressTrack}>
                 <View style={[styles.progressFill, { width: `${((index + 1) / queue.length) * 100}%` }]} />
             </View>
@@ -122,7 +123,7 @@ export default function ReviewSessionScreen({ route, navigation }: Props) {
             </View>
 
             {selected !== null ? <Button label="다음" onPress={handleNext} style={styles.nextButton} /> : null}
-        </View>
+        </ResponsiveContainer>
     );
 }
 
