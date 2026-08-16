@@ -206,7 +206,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
                         />
                         <Button
                             label="추가"
-                            onPress={handleManualAdd}
+                            onPressIn={handleManualAdd}
                             disabled={!manualText.trim()}
                             style={styles.manualConfirmButton}
                         />
