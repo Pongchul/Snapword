@@ -18,3 +18,6 @@ export const lookupWord = (text: string, language: WordLanguage) =>
 
 export const updateWordDefinition = (wordId: number, body: { definitionKo: string }) =>
     fetcher.patch<typeof body, WordDto>({ path: `/api/v1/words/${wordId}`, body });
+
+export const createManualWord = (body: { text: string; language: WordLanguage; definitionKo: string }) =>
+    fetcher.post<typeof body, WordDto>({ path: '/api/v1/words/manual', body });
