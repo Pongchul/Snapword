@@ -9,6 +9,7 @@ import { WordDto } from '../apis/words';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'WordConfirm'>;
@@ -105,7 +106,7 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
     const savableCount = entries.filter(entry => entry.word).length;
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container}>
             <Text style={styles.screenTitle}>단어 확인</Text>
             <Text style={styles.screenSubtitle}>인식된 단어를 확인하고 저장하세요 ({entries.length}개)</Text>
 
@@ -177,7 +178,7 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                     style={styles.saveButton}
                 />
             </View>
-        </View>
+        </ResponsiveContainer>
     );
 }
 
