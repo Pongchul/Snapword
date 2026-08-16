@@ -2,9 +2,12 @@ package com.snapword.backend.book.service;
 
 import com.snapword.backend.book.domain.BookMember;
 import com.snapword.backend.book.domain.BookWord;
+import com.snapword.backend.book.domain.BookWordDefinition;
 import com.snapword.backend.book.dto.AddBookWordRequest;
+import com.snapword.backend.book.dto.BookWordDefinitionDto;
 import com.snapword.backend.book.dto.BookWordDto;
 import com.snapword.backend.book.exception.ForbiddenBookAccessException;
+import com.snapword.backend.book.repository.BookWordDefinitionRepository;
 import com.snapword.backend.book.repository.BookWordRepository;
 import com.snapword.backend.member.domain.Member;
 import com.snapword.backend.member.repository.MemberRepository;
@@ -23,6 +26,7 @@ public class BookWordService {
 
     private final BookService bookService;
     private final BookWordRepository bookWordRepository;
+    private final BookWordDefinitionRepository bookWordDefinitionRepository;
     private final WordRepository wordRepository;
     private final MemberRepository memberRepository;
 
@@ -67,6 +71,38 @@ public class BookWordService {
         bookWordRepository.delete(bookWord);
     }
 
+    @Transactional
+    public BookWordDefinitionDto addDefinition(Long bookId, Long bookWordId, Long memberId, String text) {
+        if (text == null || text.isBlank()) {
+            throw new IllegalArgumentException("뜻을 입력해주세요.");
+        }
+        BookMember membership = bookService.requireMembership(bookId, memberId);
+        requireEditPermission(membership);
+
+        BookWord bookWord = bookWordRepository.findByIdAndBookId(bookWordId, bookId)
+                .orElseThrow(() -> new IllegalArgumentException("단어장에 없는 단어입니다: " + bookWordId));
+
+        BookWordDefinition saved = bookWordDefinitionRepository.save(BookWordDefinition.builder()
+                .bookWord(bookWord)
+                .text(text.trim())
+                .build());
+
+        return new BookWordDefinitionDto(saved.getId(), saved.getText());
+    }
+
+    @Transactional
+    public void removeDefinition(Long bookId, Long bookWordId, Long definitionId, Long memberId) {
+        BookMember membership = bookService.requireMembership(bookId, memberId);
+        requireEditPermission(membership);
+
+        bookWordRepository.findByIdAndBookId(bookWordId, bookId)
+                .orElseThrow(() -> new IllegalArgumentException("단어장에 없는 단어입니다: " + bookWordId));
+        BookWordDefinition definition = bookWordDefinitionRepository.findByIdAndBookWordId(definitionId, bookWordId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뜻입니다: " + definitionId));
+
+        bookWordDefinitionRepository.delete(definition);
+    }
+
     private void requireEditPermission(BookMember membership) {
         if (!membership.getRole().canEdit()) {
             throw new ForbiddenBookAccessException("단어를 추가/삭제할 권한이 없습니다.");
@@ -79,12 +115,17 @@ public class BookWordService {
                 word.getId(), word.getText(), word.getLanguage(), word.getPartOfSpeech(),
                 word.getDefinitionEn(), word.getDefinitionKo(), word.getPronunciation(), word.getExample()
         );
+        List<BookWordDefinitionDto> customDefinitions = bookWordDefinitionRepository
+                .findByBookWordIdOrderByCreatedAtAsc(bookWord.getId()).stream()
+                .map(d -> new BookWordDefinitionDto(d.getId(), d.getText()))
+                .toList();
         return new BookWordDto(
                 bookWord.getId(),
                 wordDto,
                 bookWord.getNote(),
                 bookWord.getAddedBy().getNickname(),
-                bookWord.getCreatedAt()
+                bookWord.getCreatedAt(),
+                customDefinitions
         );
     }
 }
