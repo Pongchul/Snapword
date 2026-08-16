@@ -18,6 +18,8 @@ type Entry = {
     word: WordDto | null;
     note: string;
     failed: boolean;
+    manualDraft: string;
+    savingManual: boolean;
 };
 
 export default function WordConfirmScreen({ route, navigation }: Props) {
@@ -31,19 +33,35 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                 texts.map(async text => {
                     try {
                         const word = await wordsApi.lookupWord(text, language);
-                        return { text, word, note: '', failed: false };
+                        return { text, word, note: '', failed: false, manualDraft: '', savingManual: false };
                     } catch {
-                        return { text, word: null, note: '', failed: true };
+                        return { text, word: null, note: '', failed: true, manualDraft: '', savingManual: false };
                     }
                 }),
             );
             setEntries(results);
-            if (results.every(entry => entry.failed)) {
-                Alert.alert('사전 조회 실패', '선택한 단어를 찾지 못했어요.');
-                navigation.goBack();
-            }
         })();
-    }, [texts, language, navigation]);
+    }, [texts, language]);
+
+    const updateManualDraft = (text: string, draft: string) => {
+        setEntries(prev => prev && prev.map(entry => (entry.text === text ? { ...entry, manualDraft: draft } : entry)));
+    };
+
+    const submitManual = async (text: string) => {
+        const entry = entries?.find(e => e.text === text);
+        const definitionKo = entry?.manualDraft.trim();
+        if (!definitionKo) return;
+        setEntries(prev => prev && prev.map(e => (e.text === text ? { ...e, savingManual: true } : e)));
+        try {
+            const word = await wordsApi.createManualWord({ text, language, definitionKo });
+            setEntries(prev =>
+                prev && prev.map(e => (e.text === text ? { ...e, word, failed: false, savingManual: false } : e)),
+            );
+        } catch (error) {
+            Alert.alert('추가 실패', error instanceof ApiError ? error.message : '다시 시도해주세요.');
+            setEntries(prev => prev && prev.map(e => (e.text === text ? { ...e, savingManual: false } : e)));
+        }
+    };
 
     const speak = (text: string) => {
         Tts.setDefaultLanguage(language === 'JA' ? 'ja-JP' : 'en-US').catch(() => {});
@@ -128,7 +146,22 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                     ) : (
                         <View key={entry.text} style={[styles.card, styles.cardFailed]}>
                             <Text style={styles.wordText}>{entry.text}</Text>
-                            <Text style={styles.failedText}>사전에서 찾지 못했어요.</Text>
+                            <Text style={styles.failedText}>사전에서 찾지 못했어요. 뜻을 직접 입력해보세요.</Text>
+                            <TextInput
+                                style={styles.manualDefInput}
+                                placeholder="뜻을 입력하세요"
+                                placeholderTextColor={colors.textPlaceholder}
+                                value={entry.manualDraft}
+                                onChangeText={draft => updateManualDraft(entry.text, draft)}
+                            />
+                            <Button
+                                label={entry.savingManual ? '추가 중...' : '직접 입력해서 추가'}
+                                onPressIn={() => submitManual(entry.text)}
+                                disabled={!entry.manualDraft.trim() || entry.savingManual}
+                                loading={entry.savingManual}
+                                size="sm"
+                                style={styles.manualDefButton}
+                            />
                         </View>
                     ),
                 )}
@@ -164,6 +197,15 @@ const styles = StyleSheet.create({
     },
     cardFailed: { borderColor: colors.dangerLight, backgroundColor: colors.dangerLight },
     failedText: { ...typography.caption, color: colors.danger, marginTop: spacing.xs },
+    manualDefInput: {
+        backgroundColor: colors.background,
+        borderRadius: radius.md,
+        padding: spacing.md,
+        marginTop: spacing.md,
+        fontSize: 14,
+        color: colors.textMain,
+    },
+    manualDefButton: { marginTop: spacing.sm },
     wordHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
     wordText: { fontSize: 28, fontWeight: '800', color: colors.textMain },
     tag: {
