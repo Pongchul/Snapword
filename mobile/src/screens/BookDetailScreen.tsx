@@ -11,6 +11,7 @@ import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
 import Icon from '../components/Icon';
+import ResponsiveContainer from '../components/ResponsiveContainer';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'BookDetail'>;
@@ -229,7 +230,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
     );
 
     return (
-        <View style={styles.container}>
+        <ResponsiveContainer style={styles.container}>
             <View style={styles.actionRow}>
                 <TouchableOpacity
                     style={[styles.actionButton, styles.actionButtonPrimary]}
@@ -308,7 +309,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
                 }
                 contentContainerStyle={bookWords.length === 0 ? styles.emptyContainer : styles.list}
             />
-        </View>
+        </ResponsiveContainer>
     );
 }
 
