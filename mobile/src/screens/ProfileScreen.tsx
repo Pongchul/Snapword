@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAuth } from '../hooks/useAuth';
 import * as reviewApi from '../apis/review';
 import { ReviewActivityDto } from '../apis/review';
@@ -11,12 +12,14 @@ export default function ProfileScreen() {
     const { member, logout } = useAuth();
     const [activity, setActivity] = useState<ReviewActivityDto[]>([]);
 
-    useEffect(() => {
-        reviewApi
-            .getReviewActivity()
-            .then(data => setActivity(data ?? []))
-            .catch(() => setActivity([]));
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            reviewApi
+                .getReviewActivity()
+                .then(data => setActivity(data ?? []))
+                .catch(() => setActivity([]));
+        }, []),
+    );
 
     return (
         <View style={styles.container}>
