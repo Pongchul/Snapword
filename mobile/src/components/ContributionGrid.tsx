@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ReviewActivityDto } from '../apis/review';
 import Icon from './Icon';
@@ -72,6 +72,7 @@ function computeStreak(activityMap: Map<string, number>): number {
 }
 
 export default function ContributionGrid({ activity, totalDays = 371 }: Props) {
+    const scrollRef = useRef<ScrollView>(null);
     const activityMap = new Map(activity.map(a => [a.date, a.count]));
     const weeks = buildWeeks(activityMap, totalDays);
     const streak = computeStreak(activityMap);
@@ -87,7 +88,13 @@ export default function ContributionGrid({ activity, totalDays = 371 }: Props) {
                     </View>
                 ) : null}
             </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.gridScroll}>
+            <ScrollView
+                ref={scrollRef}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.gridScroll}
+                onContentSizeChange={() => scrollRef.current?.scrollToEnd({ animated: false })}
+            >
                 <View style={styles.grid}>
                     {weeks.map((week, weekIndex) => (
                         <View key={weekIndex} style={styles.week}>
