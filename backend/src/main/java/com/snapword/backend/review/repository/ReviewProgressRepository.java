@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface ReviewProgressRepository extends JpaRepository<ReviewProgress, Long> {
     Optional<ReviewProgress> findByMemberIdAndBookWordId(Long memberId, Long bookWordId);
     List<ReviewProgress> findByMemberIdAndBookWord_Book_Id(Long memberId, Long bookId);
+    void deleteByBookWordId(Long bookWordId);
 }
