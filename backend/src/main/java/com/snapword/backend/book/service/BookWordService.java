@@ -11,6 +11,7 @@ import com.snapword.backend.book.repository.BookWordDefinitionRepository;
 import com.snapword.backend.book.repository.BookWordRepository;
 import com.snapword.backend.member.domain.Member;
 import com.snapword.backend.member.repository.MemberRepository;
+import com.snapword.backend.review.repository.ReviewProgressRepository;
 import com.snapword.backend.word.domain.Word;
 import com.snapword.backend.word.dto.WordDto;
 import com.snapword.backend.word.repository.WordRepository;
@@ -27,6 +28,7 @@ public class BookWordService {
     private final BookService bookService;
     private final BookWordRepository bookWordRepository;
     private final BookWordDefinitionRepository bookWordDefinitionRepository;
+    private final ReviewProgressRepository reviewProgressRepository;
     private final WordRepository wordRepository;
     private final MemberRepository memberRepository;
 
@@ -68,6 +70,9 @@ public class BookWordService {
 
         BookWord bookWord = bookWordRepository.findByIdAndBookId(bookWordId, bookId)
                 .orElseThrow(() -> new IllegalArgumentException("단어장에 없는 단어입니다: " + bookWordId));
+
+        reviewProgressRepository.deleteByBookWordId(bookWordId);
+        bookWordDefinitionRepository.deleteByBookWordId(bookWordId);
         bookWordRepository.delete(bookWord);
     }
 
