@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface BookWordDefinitionRepository extends JpaRepository<BookWordDefinition, Long> {
     List<BookWordDefinition> findByBookWordIdOrderByCreatedAtAsc(Long bookWordId);
     Optional<BookWordDefinition> findByIdAndBookWordId(Long id, Long bookWordId);
+    void deleteByBookWordId(Long bookWordId);
 }
