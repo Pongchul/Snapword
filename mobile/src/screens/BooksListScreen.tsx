@@ -60,6 +60,24 @@ export default function BooksListScreen({ navigation }: Props) {
         }
     };
 
+    const handleDelete = (book: BookDto) => {
+        Alert.alert('단어장 삭제', `"${book.name}" 단어장을 삭제할까요? 저장된 단어가 모두 사라집니다.`, [
+            { text: '취소', style: 'cancel' },
+            {
+                text: '삭제',
+                style: 'destructive',
+                onPress: async () => {
+                    try {
+                        await booksApi.deleteBook(book.id);
+                        refresh();
+                    } catch (error) {
+                        Alert.alert('삭제 실패', error instanceof ApiError ? error.message : '다시 시도해주세요.');
+                    }
+                },
+            },
+        ]);
+    };
+
     const renderItem = ({ item, index }: { item: BookDto; index: number }) => {
         const tint = BOOK_TINTS[index % BOOK_TINTS.length];
         return (
@@ -69,6 +87,7 @@ export default function BooksListScreen({ navigation }: Props) {
             onPress={() =>
                 navigation.navigate('BookDetail', { bookId: item.id, bookName: item.name, language: item.language })
             }
+            onLongPress={item.myRole === 'OWNER' ? () => handleDelete(item) : undefined}
         >
             <View style={[styles.bookIcon, { backgroundColor: tint.background }]}>
                 <Icon name="book" size={22} color={tint.iconColor} />
@@ -81,6 +100,11 @@ export default function BooksListScreen({ navigation }: Props) {
                     {item.myRole === 'OWNER' ? '내 단어장' : '공유받음'} · 멤버 {item.memberCount}명
                 </Text>
             </View>
+            {item.myRole === 'OWNER' ? (
+                <TouchableOpacity onPress={() => handleDelete(item)} hitSlop={8}>
+                    <Icon name="trash-2" size={17} color={colors.textPlaceholder} />
+                </TouchableOpacity>
+            ) : null}
             <Text style={styles.chevron}>›</Text>
         </TouchableOpacity>
         );
