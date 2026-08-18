@@ -88,7 +88,10 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
             if (failCount > 0) {
                 Alert.alert('일부 저장 실패', `${failCount}개 단어를 저장하지 못했어요.`);
             } else {
-                navigation.pop(2);
+                const state = navigation.getState();
+                const bookDetailIndex = state.routes.findIndex(r => r.name === 'BookDetail');
+                const popCount = bookDetailIndex >= 0 ? state.index - bookDetailIndex : 2;
+                navigation.pop(popCount);
             }
         } finally {
             setSaving(false);
@@ -110,7 +113,7 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
             <Text style={styles.screenTitle}>단어 확인</Text>
             <Text style={styles.screenSubtitle}>인식된 단어를 확인하고 저장하세요 ({entries.length}개)</Text>
 
-            <ScrollView contentContainerStyle={styles.list}>
+            <ScrollView contentContainerStyle={styles.list} keyboardShouldPersistTaps="handled">
                 {entries.map(entry =>
                     entry.word ? (
                         <View key={entry.text} style={styles.card}>
@@ -157,7 +160,7 @@ export default function WordConfirmScreen({ route, navigation }: Props) {
                             />
                             <Button
                                 label={entry.savingManual ? '추가 중...' : '직접 입력해서 추가'}
-                                onPressIn={() => submitManual(entry.text)}
+                                onPress={() => submitManual(entry.text)}
                                 disabled={!entry.manualDraft.trim() || entry.savingManual}
                                 loading={entry.savingManual}
                                 size="sm"
