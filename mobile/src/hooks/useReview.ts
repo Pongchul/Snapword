@@ -1,28 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import * as reviewApi from '../apis/review';
-import { QuizQuestionDto } from '../apis/review';
 
 export function useReview(bookId: number) {
-    const [queue, setQueue] = useState<QuizQuestionDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const refresh = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const result = await reviewApi.getReviewQueue(bookId);
-            setQueue(result ?? []);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [bookId]);
-
-    useEffect(() => {
-        refresh();
-    }, [refresh]);
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: ['books', bookId, 'review-queue'],
+        queryFn: async () => (await reviewApi.getReviewQueue(bookId)) ?? [],
+    });
 
     const submitResult = useCallback(async (bookWordId: number, correct: boolean) => {
         await reviewApi.submitReviewResult(bookWordId, correct);
     }, []);
 
-    return { queue, isLoading, refresh, submitResult };
+    return { queue: data ?? [], isLoading, refresh: refetch, submitResult };
 }
