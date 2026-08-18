@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useAuth } from '../hooks/useAuth';
 import { AuthStackParamList } from '../types/navigation';
 import ApiError from '../apis/apiError';
 import Button from '../components/Button';
 import TextField from '../components/TextField';
-import Icon from '../components/Icon';
 import ResponsiveContainer from '../components/ResponsiveContainer';
 import { useKeyboardVisible } from '../hooks/useKeyboardVisible';
 import { colors, radius, spacing, typography } from '../theme';
@@ -42,9 +41,7 @@ export default function LoginScreen({ navigation }: Props) {
                 keyboardShouldPersistTaps="handled"
             >
                 <ResponsiveContainer maxWidth={440}>
-                    <View style={styles.logoMark}>
-                        <Icon name="camera" size={28} color={colors.primary} />
-                    </View>
+                    <Image source={require('../assets/logo.png')} style={styles.logoMark} />
                     <Text style={styles.title}>SnapWord</Text>
                     <Text style={styles.subtitle}>사진으로 만드는 나만의 단어장</Text>
 
@@ -90,9 +87,6 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: radius.xl,
-        backgroundColor: colors.primaryLight,
-        alignItems: 'center',
-        justifyContent: 'center',
         alignSelf: 'center',
         marginBottom: spacing.lg,
     },
