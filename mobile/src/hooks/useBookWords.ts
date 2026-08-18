@@ -1,27 +1,19 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useQuery } from '@tanstack/react-query';
 import * as booksApi from '../apis/books';
-import { BookWordDto } from '../apis/books';
 
 export function useBookWords(bookId: number) {
-    const [bookWords, setBookWords] = useState<BookWordDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const refresh = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const result = await booksApi.getBookWords(bookId);
-            setBookWords(result ?? []);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [bookId]);
+    const { data, isLoading, refetch } = useQuery({
+        queryKey: ['books', bookId, 'words'],
+        queryFn: async () => (await booksApi.getBookWords(bookId)) ?? [],
+    });
 
     useFocusEffect(
         useCallback(() => {
-            refresh();
-        }, [refresh]),
+            refetch();
+        }, [refetch]),
     );
 
-    return { bookWords, isLoading, refresh };
+    return { bookWords: data ?? [], isLoading, refresh: refetch };
 }
