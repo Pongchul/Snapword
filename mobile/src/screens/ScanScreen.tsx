@@ -46,7 +46,7 @@ export default function ScanScreen({ route, navigation }: Props) {
     const [candidates, setCandidates] = useState<Candidate[]>([]);
     const [recognizing, setRecognizing] = useState(false);
     const [selected, setSelected] = useState<Set<string>>(new Set());
-    const [mode, setMode] = useState<'auto' | 'manual'>('auto');
+    const [mode, setMode] = useState<'auto' | 'manual'>('manual');
     const [allElements, setAllElements] = useState<Candidate[]>([]);
     const [manualRegions, setManualRegions] = useState<ManualRegion[]>([]);
     const [drawingRect, setDrawingRect] = useState<Rect | null>(null);
@@ -198,19 +198,19 @@ export default function ScanScreen({ route, navigation }: Props) {
             {photoUri ? (
                 <View style={styles.modeToggleRow}>
                     <TouchableOpacity
-                        style={[styles.modeChip, mode === 'auto' && styles.modeChipSelected]}
-                        onPress={() => setMode('auto')}
-                    >
-                        <Text style={[styles.modeChipText, mode === 'auto' && styles.modeChipTextSelected]}>
-                            자동 인식
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
                         style={[styles.modeChip, mode === 'manual' && styles.modeChipSelected]}
                         onPress={() => setMode('manual')}
                     >
                         <Text style={[styles.modeChipText, mode === 'manual' && styles.modeChipTextSelected]}>
                             직접 선택
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={[styles.modeChip, mode === 'auto' && styles.modeChipSelected]}
+                        onPress={() => setMode('auto')}
+                    >
+                        <Text style={[styles.modeChipText, mode === 'auto' && styles.modeChipTextSelected]}>
+                            자동 인식
                         </Text>
                     </TouchableOpacity>
                 </View>
