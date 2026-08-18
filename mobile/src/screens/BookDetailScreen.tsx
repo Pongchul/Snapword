@@ -83,7 +83,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
     const handleRemoveDefinition = (bookWordId: number, definitionId: number) => {
         booksApi
             .removeCustomDefinition(bookId, bookWordId, definitionId)
-            .then(refresh)
+            .then(() => refresh())
             .catch((error: unknown) => {
                 Alert.alert('삭제 실패', error instanceof ApiError ? error.message : '다시 시도해주세요.');
             });
@@ -203,7 +203,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
                             autoFocus
                         />
                         <TouchableOpacity
-                            onPressIn={() => submitDefinition(item.id)}
+                            onPress={() => submitDefinition(item.id)}
                             disabled={!newDefinitionText.trim()}
                             hitSlop={8}
                         >
@@ -216,7 +216,7 @@ export default function BookDetailScreen({ route, navigation }: Props) {
                                 추가
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity onPressIn={cancelAddDefinition} hitSlop={8}>
+                        <TouchableOpacity onPress={cancelAddDefinition} hitSlop={8}>
                             <Text style={styles.editCancelText}>취소</Text>
                         </TouchableOpacity>
                     </View>
@@ -231,78 +231,81 @@ export default function BookDetailScreen({ route, navigation }: Props) {
 
     return (
         <ResponsiveContainer style={styles.container}>
-            <View style={styles.actionRow}>
-                <TouchableOpacity
-                    style={[styles.actionButton, styles.actionButtonPrimary]}
-                    activeOpacity={0.75}
-                    onPress={() => navigation.navigate('Scan', { bookId, language })}
-                >
-                    <Icon name="camera" size={20} color={colors.primary} />
-                    <Text style={[styles.actionButtonText, styles.actionButtonTextPrimary]}>촬영 추가</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    activeOpacity={0.75}
-                    onPress={() => navigation.navigate('Review', { bookId, bookName })}
-                >
-                    <Icon name="brain" size={20} color={colors.textSub} />
-                    <Text style={styles.actionButtonText}>복습하기</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    activeOpacity={0.75}
-                    onPress={() => navigation.navigate('BookShare', { bookId })}
-                >
-                    <Icon name="share-2" size={20} color={colors.textSub} />
-                    <Text style={styles.actionButtonText}>공유</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.actionButton}
-                    activeOpacity={0.75}
-                    onPress={() => setShowManualInput(prev => !prev)}
-                >
-                    <Icon name="keyboard" size={20} color={colors.textSub} />
-                    <Text style={styles.actionButtonText}>직접 입력</Text>
-                </TouchableOpacity>
-            </View>
-
-            {showManualInput ? (
-                <View style={styles.manualCard}>
-                    <TextField
-                        placeholder="단어를 입력하세요 (쉼표나 줄바꿈으로 여러 개 가능)"
-                        value={manualText}
-                        onChangeText={setManualText}
-                        multiline
-                        autoFocus
-                    />
-                    <View style={styles.manualButtonRow}>
-                        <Button
-                            label="취소"
-                            variant="ghost"
-                            onPress={() => {
-                                setShowManualInput(false);
-                                setManualText('');
-                            }}
-                            style={styles.manualCancelButton}
-                        />
-                        <Button
-                            label="추가"
-                            onPressIn={handleManualAdd}
-                            disabled={!manualText.trim()}
-                            style={styles.manualConfirmButton}
-                        />
-                    </View>
-                </View>
-            ) : null}
-
             <FlatList
                 data={bookWords}
                 keyExtractor={item => String(item.id)}
                 renderItem={renderItem}
                 refreshing={isLoading}
                 onRefresh={refresh}
+                keyboardShouldPersistTaps="handled"
                 ListHeaderComponent={
-                    bookWords.length > 0 ? <Text style={styles.countLabel}>{bookWords.length}개 단어</Text> : null
+                    <>
+                        <View style={styles.actionRow}>
+                            <TouchableOpacity
+                                style={[styles.actionButton, styles.actionButtonPrimary]}
+                                activeOpacity={0.75}
+                                onPress={() => navigation.navigate('Scan', { bookId, language })}
+                            >
+                                <Icon name="camera" size={20} color={colors.primary} />
+                                <Text style={[styles.actionButtonText, styles.actionButtonTextPrimary]}>촬영 추가</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.actionButton}
+                                activeOpacity={0.75}
+                                onPress={() => navigation.navigate('Review', { bookId, bookName })}
+                            >
+                                <Icon name="brain" size={20} color={colors.textSub} />
+                                <Text style={styles.actionButtonText}>복습하기</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.actionButton}
+                                activeOpacity={0.75}
+                                onPress={() => navigation.navigate('BookShare', { bookId })}
+                            >
+                                <Icon name="share-2" size={20} color={colors.textSub} />
+                                <Text style={styles.actionButtonText}>공유</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.actionButton}
+                                activeOpacity={0.75}
+                                onPress={() => setShowManualInput(prev => !prev)}
+                            >
+                                <Icon name="keyboard" size={20} color={colors.textSub} />
+                                <Text style={styles.actionButtonText}>직접 입력</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                        {showManualInput ? (
+                            <View style={styles.manualCard}>
+                                <TextField
+                                    placeholder="단어를 입력하세요 (쉼표나 줄바꿈으로 여러 개 가능)"
+                                    value={manualText}
+                                    onChangeText={setManualText}
+                                    multiline
+                                    autoFocus
+                                />
+                                <View style={styles.manualButtonRow}>
+                                    <Button
+                                        label="취소"
+                                        variant="ghost"
+                                        onPress={() => {
+                                            setShowManualInput(false);
+                                            setManualText('');
+                                        }}
+                                        style={styles.manualCancelButton}
+                                    />
+                                    <Button
+                                        label="추가"
+                                        onPress={handleManualAdd}
+                                        disabled={!manualText.trim()}
+                                        style={styles.manualConfirmButton}
+                                    />
+                                </View>
+                            </View>
+                        ) : null}
+
+                        {bookWords.length > 0 ? <Text style={styles.countLabel}>{bookWords.length}개 단어</Text> : null}
+                    </>
                 }
                 ListEmptyComponent={
                     !isLoading ? <Text style={styles.empty}>아직 저장된 단어가 없어요. 사진을 찍어보세요!</Text> : null
