@@ -95,6 +95,7 @@ export default function BooksListScreen({ navigation }: Props) {
                 refreshing={isLoading}
                 onRefresh={refresh}
                 contentContainerStyle={styles.listContent}
+                keyboardShouldPersistTaps="handled"
                 ListHeaderComponent={
                     <View>
                         <View style={styles.heroCard}>
