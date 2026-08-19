@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 import {
     ActivityIndicator,
-    Alert,
     Image,
     PermissionsAndroid,
     Platform,
@@ -12,6 +11,7 @@ import {
     View,
     useWindowDimensions,
 } from 'react-native';
+import { Alert } from '../components/AppAlert';
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import TextRecognition, { Frame, TextRecognitionScript } from '@react-native-ml-kit/text-recognition';
