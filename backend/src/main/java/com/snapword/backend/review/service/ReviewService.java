@@ -54,8 +54,9 @@ public class ReviewService {
 
         return bookWords.stream()
                 .filter(bw -> isDue(progressByBookWordId.get(bw.getId()), now))
-                .limit(QUEUE_LIMIT)
                 .map(this::buildQuizQuestion)
+                .filter(q -> q.choices().size() == CHOICE_COUNT)
+                .limit(QUEUE_LIMIT)
                 .toList();
     }
 
