@@ -8,7 +8,9 @@ import java.util.Optional;
 
 public interface BookMemberRepository extends JpaRepository<BookMember, Long> {
     List<BookMember> findByMemberIdOrderByJoinedAtDesc(Long memberId);
+    List<BookMember> findByBookIdOrderByJoinedAtAsc(Long bookId);
     Optional<BookMember> findByBookIdAndMemberId(Long bookId, Long memberId);
     boolean existsByBookIdAndMemberId(Long bookId, Long memberId);
     long countByBookId(Long bookId);
+    void deleteByBookId(Long bookId);
 }
