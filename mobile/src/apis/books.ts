@@ -15,6 +15,13 @@ export interface BookDto {
     createdAt: string;
 }
 
+export interface BookMemberDto {
+    memberId: number;
+    nickname: string;
+    email: string;
+    role: BookRole;
+}
+
 export interface BookWordDefinitionDto {
     id: number;
     text: string;
@@ -46,6 +53,15 @@ export const generateInviteCode = (bookId: number) =>
 
 export const joinBookByCode = (inviteCode: string) =>
     fetcher.post<{ inviteCode: string }, BookDto>({ path: '/api/v1/books/join', body: { inviteCode } });
+
+export const getBookMembers = (bookId: number) =>
+    fetcher.get<BookMemberDto[]>({ path: `/api/v1/books/${bookId}/members` });
+
+export const updateMemberRole = (bookId: number, memberId: number, role: BookRole) =>
+    fetcher.patch<{ role: BookRole }, void>({
+        path: `/api/v1/books/${bookId}/members/${memberId}`,
+        body: { role },
+    });
 
 export const getBookWords = (bookId: number) =>
     fetcher.get<BookWordDto[]>({ path: `/api/v1/books/${bookId}/words` });
