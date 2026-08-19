@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert } from '../components/AppAlert';
 import Tts from 'react-native-tts';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/navigation';
