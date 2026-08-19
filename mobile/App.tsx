@@ -6,6 +6,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './src/hooks/useAuth';
 import RootNavigator from './src/navigation/RootNavigator';
 import { queryClient } from './src/queryClient';
+import { AlertProvider } from './src/components/AppAlert';
 
 function App() {
     return (
@@ -13,7 +14,9 @@ function App() {
             <QueryClientProvider client={queryClient}>
                 <SafeAreaProvider>
                     <AuthProvider>
-                        <RootNavigator />
+                        <AlertProvider>
+                            <RootNavigator />
+                        </AlertProvider>
                     </AuthProvider>
                 </SafeAreaProvider>
             </QueryClientProvider>
