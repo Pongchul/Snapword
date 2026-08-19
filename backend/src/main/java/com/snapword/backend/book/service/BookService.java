@@ -4,15 +4,20 @@ import com.snapword.backend.book.domain.Book;
 import com.snapword.backend.book.domain.BookMember;
 import com.snapword.backend.book.domain.BookRole;
 import com.snapword.backend.book.domain.BookVisibility;
+import com.snapword.backend.book.domain.BookWord;
 import com.snapword.backend.book.dto.BookDto;
+import com.snapword.backend.book.dto.BookMemberDto;
 import com.snapword.backend.book.dto.CreateBookRequest;
 import com.snapword.backend.book.exception.BookNotFoundException;
 import com.snapword.backend.book.exception.ForbiddenBookAccessException;
 import com.snapword.backend.book.exception.InvalidInviteCodeException;
 import com.snapword.backend.book.repository.BookMemberRepository;
 import com.snapword.backend.book.repository.BookRepository;
+import com.snapword.backend.book.repository.BookWordDefinitionRepository;
+import com.snapword.backend.book.repository.BookWordRepository;
 import com.snapword.backend.member.domain.Member;
 import com.snapword.backend.member.repository.MemberRepository;
+import com.snapword.backend.review.repository.ReviewProgressRepository;
 import com.snapword.backend.word.domain.WordLanguage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +37,9 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookMemberRepository bookMemberRepository;
+    private final BookWordRepository bookWordRepository;
+    private final BookWordDefinitionRepository bookWordDefinitionRepository;
+    private final ReviewProgressRepository reviewProgressRepository;
     private final MemberRepository memberRepository;
 
     @Transactional
@@ -78,6 +86,14 @@ public class BookService {
         if (membership.getRole() != BookRole.OWNER) {
             throw new ForbiddenBookAccessException("단어장 삭제는 소유자만 가능합니다.");
         }
+
+        List<BookWord> bookWords = bookWordRepository.findByBookIdOrderByCreatedAtDesc(bookId);
+        for (BookWord bookWord : bookWords) {
+            reviewProgressRepository.deleteByBookWordId(bookWord.getId());
+            bookWordDefinitionRepository.deleteByBookWordId(bookWord.getId());
+        }
+        bookWordRepository.deleteAll(bookWords);
+        bookMemberRepository.deleteByBookId(bookId);
         bookRepository.delete(membership.getBook());
     }
 
@@ -111,6 +127,34 @@ public class BookService {
                 .build());
 
         return toDto(book, joined.getRole());
+    }
+
+    @Transactional(readOnly = true)
+    public List<BookMemberDto> getMembers(Long bookId, Long memberId) {
+        requireMembership(bookId, memberId);
+        return bookMemberRepository.findByBookIdOrderByJoinedAtAsc(bookId).stream()
+                .map(bm -> new BookMemberDto(bm.getMember().getId(), bm.getMember().getNickname(),
+                        bm.getMember().getEmail(), bm.getRole()))
+                .toList();
+    }
+
+    @Transactional
+    public void updateMemberRole(Long bookId, Long requesterId, Long targetMemberId, BookRole newRole) {
+        BookMember requesterMembership = requireMembership(bookId, requesterId);
+        if (requesterMembership.getRole() != BookRole.OWNER) {
+            throw new ForbiddenBookAccessException("멤버 권한 변경은 소유자만 가능합니다.");
+        }
+        if (newRole == BookRole.OWNER) {
+            throw new IllegalArgumentException("소유자 권한은 위임할 수 없습니다.");
+        }
+
+        BookMember target = bookMemberRepository.findByBookIdAndMemberId(bookId, targetMemberId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 단어장 멤버가 아닙니다."));
+        if (target.getRole() == BookRole.OWNER) {
+            throw new ForbiddenBookAccessException("소유자의 권한은 변경할 수 없습니다.");
+        }
+
+        target.setRole(newRole);
     }
 
     /** 다른 도메인(BookWordService, ReviewService)에서도 재사용하는 멤버십 검증 */
