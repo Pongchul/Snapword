@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert } from '../components/AppAlert';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/navigation';
 import { useBooks } from '../hooks/useBooks';
