@@ -102,7 +102,7 @@ export default function BooksListScreen({ navigation }: Props) {
                 </Text>
             </View>
             {item.myRole === 'OWNER' ? (
-                <TouchableOpacity onPress={() => handleDelete(item)} hitSlop={8}>
+                <TouchableOpacity onPress={() => handleDelete(item)} hitSlop={8} style={styles.deleteButton}>
                     <Icon name="trash-2" size={17} color={colors.textPlaceholder} />
                 </TouchableOpacity>
             ) : null}
@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
     bookInfo: { flex: 1 },
     bookName: { ...typography.subheading },
     bookMeta: { ...typography.caption, marginTop: 2 },
+    deleteButton: { marginRight: spacing.sm },
     chevron: { fontSize: 24, color: colors.textDisabled },
     empty: { textAlign: 'center', color: colors.textPlaceholder, marginTop: 40, marginBottom: spacing.xxl },
 });
